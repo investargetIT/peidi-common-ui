@@ -4,6 +4,10 @@ export default {
 };
 </script>
 <script setup lang="ts">
+import { useLocale } from "../../hooks/useLocale";
+
+const { t } = useLocale();
+
 /**
  * 接收传过来的值
  *
@@ -24,7 +28,9 @@ const handleClick = () => {
 <template>
   <div class="pd-test">
     <h1>pd-Test</h1>
-    <button class="pd-test-btn" @click="handleClick">Button</button>
+    <button class="pd-test-btn" @click="handleClick">
+      {{ t("test.button") }}  
+    </button>
     <p>参数内容：{{ title }}</p>
     <p>插槽内容：</p>
     <slot></slot>

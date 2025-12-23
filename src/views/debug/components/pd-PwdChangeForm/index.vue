@@ -18,6 +18,7 @@ const dialogVisible = ref(false);
 
 <template>
   <div>
+    <h1>pd-PwdChangeForm</h1>
     <el-button @click="dialogVisible = true">打开修改密码弹窗</el-button>
     <pd-PwdChangeForm
       v-model:visible="dialogVisible"
