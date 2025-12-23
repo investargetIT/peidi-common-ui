@@ -6,6 +6,7 @@ import { Icon as IconifyIcon } from "@iconify/vue";
 import HowToUse from "./components/pd-HowToUse/index.vue";
 import Test from "./components/pd-Test/index.vue";
 import PwdChangeForm from "./components/pd-PwdChangeForm/index.vue";
+import DataTable from "./components/pd-DataTable/index.vue";
 
 const { globalProperties } = getCurrentInstance()!.appContext.config;
 
@@ -49,6 +50,7 @@ onMounted(() => {
     { name: "HowToUse", component: markRaw(HowToUse) },
     { name: "Test", component: markRaw(Test) },
     { name: "PwdChangeForm", component: markRaw(PwdChangeForm) },
+    { name: "DataTable", component: markRaw(DataTable) },
   ];
 
   components.value = componentList.map((item) => {
@@ -189,7 +191,7 @@ const handleCommand = (command: string) => {
               </el-button>
             </div>
             <el-card style="height: calc(100% - 77px); overflow: auto">
-              <highlightjs language="javascript" :code="item.code" />
+              <highlightjs :code="item.code" />
             </el-card>
           </div>
         </div>

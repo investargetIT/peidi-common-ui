@@ -9,9 +9,9 @@ import App from "./App.vue";
 /*白色主题*/
 import "highlight.js/styles/stackoverflow-light.css";
 import hljs from "highlight.js/lib/core";
-import javascript from "highlight.js/lib/languages/javascript";
 import hljsVuePlugin from "@highlightjs/vue-plugin";
-hljs.registerLanguage("javascript", javascript);
+// 批量引入常用语言库
+import 'highlight.js/lib/common';
 
 import pdGlobalComponent from "../packages/index.ts";
 
