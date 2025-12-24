@@ -113,6 +113,9 @@ const handleCommand = (command: string) => {
   }
   currentLocale.value = globalProperties.$getLocale();
 };
+
+// 隐藏代码展示区域
+const showCode = ref(true);
 </script>
 
 <template>
@@ -128,7 +131,15 @@ const handleCommand = (command: string) => {
       <div>
         <span>{{ currentLocale }}</span>
       </div>
-      <div>
+      <div style="display: flex; align-items: center; gap: 15px">
+        <iconify-icon
+          v-if="!showCode"
+          icon="mdi:code"
+          width="24"
+          height="24"
+          style="color: #409eff; cursor: pointer"
+          @click="showCode = true"
+        ></iconify-icon>
         <el-dropdown @command="handleCommand">
           <span class="el-dropdown-link">
             <iconify-icon
@@ -171,7 +182,7 @@ const handleCommand = (command: string) => {
           </div>
 
           <!-- 代码展示区域 -->
-          <div style="flex: 1">
+          <div style="flex: 1" v-if="showCode">
             <div
               style="
                 display: flex;
@@ -180,7 +191,14 @@ const handleCommand = (command: string) => {
                 margin-bottom: 10px;
               "
             >
-              <h3 style="color: #409eff">源代码</h3>
+              <h3 style="color: #409eff">
+                源代码
+                <iconify-icon
+                  icon="ri:menu-fold-2-fill"
+                  style="cursor: pointer"
+                  @click="showCode = false"
+                ></iconify-icon>
+              </h3>
               <el-button
                 type="primary"
                 size="small"

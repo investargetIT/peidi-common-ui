@@ -18,4 +18,7 @@ export default {
     pwdChangeSuccess: "密码修改成功",
     pwdChangeError: "密码修改失败",
   },
+  dataTable: {
+    operation: "操作",
+  },
 };
