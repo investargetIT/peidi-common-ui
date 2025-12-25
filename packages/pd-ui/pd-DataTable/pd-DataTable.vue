@@ -4,18 +4,22 @@ export default {
 };
 </script>
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import axios from "axios";
-import { ElConfigProvider } from "element-plus";
 import { useElementPlusI18n } from "../../hooks/useElementPlusI18n";
 import {
   getLocalStorage,
   updateLocalStorage,
 } from "../../hooks/useLocalStorage";
 import { useLocale } from "../../hooks/useLocale";
-import { ElMessage } from "element-plus";
 import { Icon as IconifyIcon } from "@iconify/vue";
-import { ElMessageBox } from "element-plus";
+import {
+  ElConfigProvider,
+  ElMessage,
+  ElMessageBox,
+  type FormInstance,
+} from "element-plus";
+import dayjs from "dayjs";
 
 const { t } = useLocale();
 
@@ -25,6 +29,7 @@ const { elementLocale } = useElementPlusI18n();
  *
  * @param id 组件唯一性id
  * @param searchFormConfig 搜索表单配置
+ * @param operationFormConfig 操作表单配置
  * @param tableConfig 表格配置
  * @param paginationConfig 分页配置
  *
@@ -41,6 +46,7 @@ const props = defineProps({
         label: string;
         type: "text" | "select" | "date";
         config: {
+          searchType?: string;
           placeholder?: string;
           options?: {
             label: string;
@@ -51,8 +57,29 @@ const props = defineProps({
     },
     required: true,
   },
+  operationFormConfig: {
+    type: Object as () => {
+      form: Object;
+      formItems: {
+        prop: string;
+        label: string;
+        type: "text" | "select" | "date" | "hidden";
+        config: {
+          placeholder?: string;
+          options?: {
+            label: string;
+            value: string;
+          }[];
+          expandAttribute?: Object;
+        };
+      }[];
+      rules: Object;
+    },
+    required: true,
+  },
   tableConfig: {
     type: Object as () => {
+      title?: string;
       table?: {
         headerRowStyle?: Object;
         cellStyle?: Object;
@@ -101,6 +128,22 @@ const props = defineProps({
         data?: Record<string, any>;
         timeout: number;
       };
+      add?: {
+        url: string;
+        method: string;
+        headers: Record<string, string>;
+        params?: Record<string, any>;
+        data?: Record<string, any>;
+        timeout: number;
+      };
+      edit?: {
+        url: string;
+        method: string;
+        headers: Record<string, string>;
+        params?: Record<string, any>;
+        data?: Record<string, any>;
+        timeout: number;
+      };
     },
     required: true,
   },
@@ -122,6 +165,34 @@ const handleDeleteConfirm = (row: any) => {
     })
     .catch(() => {});
 };
+// 新增数据点击事件
+const handleAddClick = () => {
+  operationVisible.value = true;
+  operationType.value = "add";
+};
+// 编辑数据点击事件
+const handleEditClick = (row: any) => {
+  operationVisible.value = true;
+  operationType.value = "edit";
+  // 遍历operationForm对象，把row的属性值赋值给operationForm.value里有的属性
+  operationForm.value = Object.assign({}, operationForm.value, row);
+  // console.log("编辑数据点击事件赋值", operationForm.value);
+};
+const handleOperationSubmit = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  await formEl.validate((valid) => {
+    if (valid) {
+      // 提交表单数据
+      if (operationType.value === "add") {
+        fetchAddData(operationForm.value);
+      } else {
+        fetchEditData(operationForm.value);
+      }
+    } else {
+      ElMessage.error("请填写完整信息");
+    }
+  });
+};
 //#endregion
 
 //#region 查询栏相关
@@ -138,6 +209,45 @@ const initSearchForm = () => {
   searchForm.value = searchFromTemp;
 };
 initSearchForm();
+
+// 格式化查询参数
+const formatSearchParams = () => {
+  const searchStr: Record<string, any>[] = [];
+  Object.keys(searchForm.value).forEach((key) => {
+    if (searchForm.value[key]) {
+      const searchFormConfigItem = props.searchFormConfig.formItems.find(
+        (item) => item.prop === key
+      );
+
+      const searchTypeTemp = searchFormConfigItem?.config?.searchType || "like";
+
+      const formartSearchValue = (value: string) => {
+        if (searchFormConfigItem?.type === "date") {
+          value = dayjs(value).format("YYYY-MM-DD");
+        }
+        if (searchTypeTemp === "equals") {
+          value = `"${value}"`;
+        }
+        return value;
+      };
+
+      searchStr.push({
+        searchName: key,
+        searchType: searchTypeTemp,
+        searchValue: formartSearchValue(searchForm.value[key]),
+      });
+    }
+  });
+  return JSON.stringify(searchStr);
+};
+
+const handleReset = () => {
+  // 清空查询表单里的属性值
+  Object.keys(searchForm.value).forEach((key) => {
+    searchForm.value[key] = "";
+  });
+  fetchDataTable();
+};
 //#endregion
 
 //#region 表格相关
@@ -184,6 +294,7 @@ const fetchDataTable = async () => {
       params: {
         pageNo: paginationParams.value.currentPage,
         pageSize: paginationParams.value.pageSize,
+        searchStr: formatSearchParams(),
       },
     });
     if (response.data.code === 200) {
@@ -231,6 +342,44 @@ const fetchDeleteData = async (row: any) => {
     ElMessage.error(error.message || "删除失败");
   }
 };
+const fetchAddData = async (formData: any) => {
+  try {
+    const response = await axios({
+      ...props.requestConfig.add,
+      data: formData,
+    });
+    if (response.data.code === 200) {
+      // 成功处理
+      ElMessage.success("新增成功");
+      fetchDataTable();
+    } else {
+      // 错误处理
+      ElMessage.error(response.data.msg || "新增失败");
+    }
+  } catch (error: any) {
+    // 错误处理
+    ElMessage.error(error.message || "新增失败");
+  }
+};
+const fetchEditData = async (formData: any) => {
+  try {
+    const response = await axios({
+      ...props.requestConfig.edit,
+      data: formData,
+    });
+    if (response.data.code === 200) {
+      // 成功处理
+      ElMessage.success("编辑成功");
+      fetchDataTable();
+    } else {
+      // 错误处理
+      ElMessage.error(response.data.msg || "编辑失败");
+    }
+  } catch (error: any) {
+    // 错误处理
+    ElMessage.error(error.message || "编辑失败");
+  }
+};
 watch(
   [
     () => paginationParams.value.currentPage,
@@ -249,6 +398,37 @@ watch(
     deep: true,
   }
 );
+//#endregion
+
+//#region 操作弹窗相关
+const operationVisible = ref(false);
+const operationType = ref<"add" | "edit">("add");
+const operationTitle = computed(() => {
+  return operationType.value === "add" ? "新增数据" : "编辑数据";
+});
+const operationForm = ref<Record<string, string>>({});
+
+const initOperationForm = () => {
+  const operationFromTemp: Record<string, string> = {};
+  props.operationFormConfig.formItems.forEach((item) => {
+    // 检查对象是否有当前属性
+    if (!operationFromTemp.hasOwnProperty(item.prop)) {
+      operationFromTemp[item.prop] = "";
+    }
+  });
+  operationForm.value = operationFromTemp;
+
+  // console.log("初始化operationForm", operationForm.value);
+};
+initOperationForm();
+
+const operationFormRef = ref<FormInstance>();
+
+const filteredOperationFormItems = computed(() => {
+  return props.operationFormConfig.formItems.filter((item) => {
+    return item.type !== "hidden";
+  });
+});
 //#endregion
 
 onMounted(() => {
@@ -272,7 +452,11 @@ onMounted(() => {
 <template>
   <el-config-provider :locale="elementLocale">
     <div>
-      <el-card style="height: 100%" shadow="never">
+      <el-card
+        style="height: 100%"
+        shadow="never"
+        class="pd-DataTable-search-card"
+      >
         <!-- 查询栏 -->
         <div>
           <el-form :model="searchForm" inline>
@@ -305,14 +489,15 @@ onMounted(() => {
               </el-select>
               <el-date-picker
                 v-else-if="item.type === 'date'"
-                type="daterange"
                 v-model="searchForm[item.prop]"
+                :placeholder="item.config.placeholder"
+                style="width: 200px"
                 clearable
               />
             </el-form-item>
             <el-form-item>
-              <el-button>重置</el-button>
-              <el-button type="primary">查询</el-button>
+              <el-button @click="handleReset">重置</el-button>
+              <el-button type="primary" @click="fetchDataTable">查询</el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -326,9 +511,9 @@ onMounted(() => {
             align-items: center;
           "
         >
-          <div>表格</div>
+          <div>{{ props.tableConfig.title }}</div>
           <div>
-            <el-button type="primary"
+            <el-button type="primary" @click="handleAddClick"
               ><iconify-icon
                 icon="si:add-fill"
                 width="18"
@@ -365,7 +550,11 @@ onMounted(() => {
               min-width="150"
             >
               <template #default="scope">
-                <el-button text class="pd-DataTable-operation">
+                <el-button
+                  text
+                  class="pd-DataTable-operation"
+                  @click="handleEditClick(scope.row)"
+                >
                   <iconify-icon
                     icon="mingcute:edit-line"
                     width="18"
@@ -410,11 +599,72 @@ onMounted(() => {
           />
         </div>
       </el-card>
+      <!-- 操作弹窗 -->
+      <el-dialog v-model="operationVisible" :title="operationTitle" width="500">
+        <el-form
+          :model="operationForm"
+          v-bind="props.operationFormConfig.form"
+          :rules="props.operationFormConfig.rules"
+          ref="operationFormRef"
+        >
+          <el-form-item
+            v-for="item in filteredOperationFormItems"
+            :key="item.prop"
+            :prop="item.prop"
+            :label="item.label"
+          >
+            <el-input
+              v-if="item.type === 'text'"
+              v-model="operationForm[item.prop]"
+              :placeholder="item.config.placeholder"
+              style="width: 200px"
+              clearable
+              v-bind="item.config.expandAttribute"
+            />
+            <el-select
+              v-else-if="item.type === 'select'"
+              v-model="operationForm[item.prop]"
+              :placeholder="item.config.placeholder"
+              style="width: 200px"
+              clearable
+            >
+              <el-option
+                v-for="option in item.config.options"
+                :key="option.value"
+                :label="option.label"
+                :value="option.value"
+              />
+            </el-select>
+            <el-date-picker
+              v-else-if="item.type === 'date'"
+              v-model="operationForm[item.prop]"
+              :placeholder="item.config.placeholder"
+              style="width: 200px"
+              clearable
+            />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button
+              type="primary"
+              @click="handleOperationSubmit(operationFormRef)"
+            >
+              确认
+            </el-button>
+          </div>
+        </template>
+      </el-dialog>
     </div>
   </el-config-provider>
 </template>
 
 <style lang="scss" scoped>
+.pd-DataTable-search-card {
+  :deep(.el-card__body) {
+    padding-bottom: 0;
+  }
+}
 .pd-DataTable-operation {
   padding: 8px;
 }

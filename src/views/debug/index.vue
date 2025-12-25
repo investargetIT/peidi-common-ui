@@ -48,7 +48,7 @@ const updateUrlParams = (componentName: string) => {
 onMounted(() => {
   const componentList = [
     { name: "HowToUse", component: markRaw(HowToUse) },
-    { name: "Test", component: markRaw(Test) },
+    // { name: "Test", component: markRaw(Test) },
     { name: "PwdChangeForm", component: markRaw(PwdChangeForm) },
     { name: "DataTable", component: markRaw(DataTable) },
   ];
@@ -74,6 +74,12 @@ onMounted(() => {
     activeName.value = components.value[0]!.name;
     // 同步到URL
     updateUrlParams(activeName.value);
+  }
+
+  // 从localStorage获取showCode状态
+  const savedShowCode = localStorage.getItem("showCode");
+  if (savedShowCode !== null) {
+    showCode.value = JSON.parse(savedShowCode);
   }
 });
 
@@ -116,6 +122,10 @@ const handleCommand = (command: string) => {
 
 // 隐藏代码展示区域
 const showCode = ref(true);
+
+watch(showCode, (newValue) => {
+  localStorage.setItem("showCode", newValue.toString());
+});
 </script>
 
 <template>

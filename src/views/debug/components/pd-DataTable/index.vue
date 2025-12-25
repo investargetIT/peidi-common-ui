@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { h, resolveComponent } from "vue";
+const TOKEN = "1930161144376926695";
 
 const SEARCH_FORM_CONFIG = {
   formItems: [
@@ -8,6 +9,7 @@ const SEARCH_FORM_CONFIG = {
       label: "Product Name",
       type: "text",
       config: {
+        searchType: "like",
         placeholder: "Search Product Name",
       },
     },
@@ -16,6 +18,7 @@ const SEARCH_FORM_CONFIG = {
       label: "Platforms",
       type: "select",
       config: {
+        searchType: "equals",
         placeholder: "Select Platforms",
         options: [
           { label: "Amazon", value: "Amazon" },
@@ -27,10 +30,70 @@ const SEARCH_FORM_CONFIG = {
       prop: "date",
       label: "Date",
       type: "date",
+      config: {
+        searchType: "equals",
+        placeholder: "Select Date",
+      },
     },
   ],
 };
+const OPERATION_FORM_CONFIG = {
+  form: {
+    labelWidth: "auto",
+    labelPosition: "left",
+  },
+  formItems: [
+    {
+      prop: "id",
+      label: "ID",
+      type: "hidden",
+    },
+    {
+      prop: "milvusId",
+      label: "Milvus ID",
+      type: "hidden",
+    },
+    {
+      prop: "field",
+      label: "Field",
+      type: "text",
+      config: {
+        placeholder: "Enter Field",
+        expandAttribute: { type: "textarea" },
+      },
+    },
+    {
+      prop: "searchSql",
+      label: "SQL",
+      type: "text",
+      config: {
+        placeholder: "Enter SQL",
+        expandAttribute: { type: "textarea" },
+      },
+    },
+    {
+      prop: "tableName",
+      label: "Table",
+      type: "text",
+      config: {
+        placeholder: "Enter Table",
+      },
+    },
+  ],
+  rules: {
+    field: [
+      { required: true, message: "Please enter a field", trigger: "blur" },
+    ],
+    searchSql: [
+      { required: true, message: "Please enter a SQL", trigger: "blur" },
+    ],
+    tableName: [
+      { required: true, message: "Please enter a table", trigger: "blur" },
+    ],
+  },
+};
 const TABLE_CONFIG = {
+  title: "Product List",
   columns: [
     {
       prop: "title",
@@ -93,7 +156,7 @@ const REQUEST_CONFIG = {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: "1930161144376926632",
+      Authorization: TOKEN,
     },
     timeout: 1000 * 10,
   },
@@ -102,7 +165,25 @@ const REQUEST_CONFIG = {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: "1930161144376926632",
+      Authorization: TOKEN,
+    },
+    timeout: 1000 * 10,
+  },
+  add: {
+    url: "https://api.peidigroup.cn/ai/gbi/table/new",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: TOKEN,
+    },
+    timeout: 1000 * 10,
+  },
+  edit: {
+    url: "https://api.peidigroup.cn/ai/gbi/table/update",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: TOKEN,
     },
     timeout: 1000 * 10,
   },
@@ -115,6 +196,7 @@ const REQUEST_CONFIG = {
     <pd-DataTable
       id="debug"
       :searchFormConfig="SEARCH_FORM_CONFIG"
+      :operationFormConfig="OPERATION_FORM_CONFIG"
       :tableConfig="TABLE_CONFIG"
       :requestConfig="REQUEST_CONFIG"
     ></pd-DataTable>
