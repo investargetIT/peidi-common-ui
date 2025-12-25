@@ -39,4 +39,9 @@ export default {
     addData: "新增数据",
     editData: "编辑数据",
   },
+  excelExport: {
+    exportSuccess: "导出成功",
+    exportError: "导出失败",
+    exportExcel: "导出Excel",
+  },
 };

@@ -4,7 +4,7 @@ export default {
 };
 </script>
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch, nextTick } from "vue";
 import axios from "axios";
 import { useElementPlusI18n } from "../../hooks/useElementPlusI18n";
 import {
@@ -207,9 +207,11 @@ const handleAddClick = () => {
 const handleEditClick = (row: any) => {
   operationVisible.value = true;
   operationType.value = "edit";
-  // 遍历operationForm对象，把row的属性值赋值给operationForm.value里有的属性
-  operationForm.value = assignSourceToTarget(row, operationForm.value);
-  // console.log("编辑数据点击事件赋值", operationForm.value);
+  nextTick(() => {
+    // 遍历operationForm对象，把row的属性值赋值给operationForm.value里有的属性
+    operationForm.value = assignSourceToTarget(row, operationForm.value);
+    // console.log("编辑数据点击事件赋值", operationForm.value);
+  });
 };
 const handleOperationSubmit = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
@@ -506,6 +508,18 @@ const filteredOperationFormItems = computed(() => {
     return item.type !== "hidden";
   });
 });
+
+watch(
+  () => operationVisible.value,
+  (newVal) => {
+    if (!newVal) {
+      operationFormRef.value?.resetFields();
+    }
+  },
+  {
+    deep: true,
+  }
+);
 //#endregion
 
 onMounted(() => {

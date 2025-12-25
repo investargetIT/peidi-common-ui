@@ -39,4 +39,9 @@ export default {
     addData: "Add Data",
     editData: "Edit Data",
   },
+  excelExport: {
+    exportSuccess: "Export successful",
+    exportError: "Export failed",
+    exportExcel: "Export Excel",
+  },
 };

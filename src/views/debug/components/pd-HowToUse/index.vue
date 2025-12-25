@@ -10,6 +10,7 @@ import { EXAMPLE_REGISTER_CODE, EXAMPLE_USE_CODE } from "./example.js";
       <h3>1、安装</h3>
       <p>推荐pnpm安装组件库：</p>
       <pre>pnpm install peidi-common-ui</pre>
+      <p>推荐搭配pure-admin模板使用</p>
     </div>
     <div>
       <h3>2、支持国际化</h3>

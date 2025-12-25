@@ -8,6 +8,7 @@ import VersionIntro from "./components/pd-VersionIntro/index.vue";
 // import Test from "./components/pd-Test/index.vue";
 import PwdChangeForm from "./components/pd-PwdChangeForm/index.vue";
 import DataTable from "./components/pd-DataTable/index.vue";
+import ExcelExport from "./components/pd-ExcelExport/index.vue";
 
 const { globalProperties } = getCurrentInstance()!.appContext.config;
 
@@ -53,6 +54,7 @@ onMounted(() => {
     // { name: "Test", component: markRaw(Test) },
     { name: "PwdChangeForm", component: markRaw(PwdChangeForm) },
     { name: "DataTable", component: markRaw(DataTable) },
+    { name: "ExcelExport", component: markRaw(ExcelExport) },
   ];
 
   components.value = componentList.map((item) => {
