@@ -4,7 +4,8 @@ import { ElMessage } from "element-plus";
 import { Icon as IconifyIcon } from "@iconify/vue";
 
 import HowToUse from "./components/pd-HowToUse/index.vue";
-import Test from "./components/pd-Test/index.vue";
+import VersionIntro from "./components/pd-VersionIntro/index.vue";
+// import Test from "./components/pd-Test/index.vue";
 import PwdChangeForm from "./components/pd-PwdChangeForm/index.vue";
 import DataTable from "./components/pd-DataTable/index.vue";
 
@@ -48,6 +49,7 @@ const updateUrlParams = (componentName: string) => {
 onMounted(() => {
   const componentList = [
     { name: "HowToUse", component: markRaw(HowToUse) },
+    { name: "VersionIntro", component: markRaw(VersionIntro) },
     // { name: "Test", component: markRaw(Test) },
     { name: "PwdChangeForm", component: markRaw(PwdChangeForm) },
     { name: "DataTable", component: markRaw(DataTable) },

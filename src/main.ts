@@ -8,7 +8,7 @@ import App from "./App.vue";
 import "highlight.js/styles/atom-one-dark.css";
 /*白色主题*/
 // import "highlight.js/styles/stackoverflow-light.css";
-import hljs from "highlight.js/lib/core";
+import "highlight.js/lib/core";
 import hljsVuePlugin from "@highlightjs/vue-plugin";
 // 批量引入常用语言库
 import 'highlight.js/lib/common';
