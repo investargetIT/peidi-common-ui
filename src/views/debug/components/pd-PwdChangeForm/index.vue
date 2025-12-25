@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
+const TOKEN = localStorage.getItem("peidi-common-ui-token") || "";
+
 const REQUEST_CONFIG = {
   url: "https://user.peidigroup.cn/user/update-password",
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    Authorization: "1930161144376926509",
+    Authorization: TOKEN,
   },
   data: {
     identifier: "1926449443739600965",

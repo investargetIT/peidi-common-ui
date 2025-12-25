@@ -3,7 +3,7 @@ import { h, resolveComponent } from "vue";
 import Introduction from "../../../utils/introduction.vue";
 import introMarkdown from "./intro.md?raw";
 
-const TOKEN = "1930161144376926695";
+const TOKEN = localStorage.getItem("peidi-common-ui-token") || "";
 
 const SEARCH_FORM_CONFIG = {
   formItems: [
