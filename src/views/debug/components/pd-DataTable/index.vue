@@ -92,6 +92,7 @@ const TABLE_CONFIG = {
       render: (scope: any) => {
         return h("div", { style: { color: "red" } }, scope.row.id);
       },
+      sortable: "custom",
     },
     {
       prop: "milvusId",

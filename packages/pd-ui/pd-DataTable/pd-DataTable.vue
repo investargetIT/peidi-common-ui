@@ -234,7 +234,7 @@ const searchForm = ref<Record<string, string>>({});
 const initSearchForm = () => {
   if (isEmpty(props.searchFormConfig)) return;
   const searchFromTemp: Record<string, string> = {};
-  props.searchFormConfig.formItems.forEach((item) => {
+  props.searchFormConfig?.formItems.forEach((item) => {
     // 检查对象是否有当前属性
     if (!searchFromTemp.hasOwnProperty(item.prop)) {
       searchFromTemp[item.prop] = "";
@@ -249,7 +249,7 @@ const formatSearchParams = () => {
   const searchStr: Record<string, any>[] = [];
   Object.keys(searchForm.value).forEach((key) => {
     if (searchForm.value[key]) {
-      const searchFormConfigItem = props.searchFormConfig.formItems.find(
+      const searchFormConfigItem = props.searchFormConfig?.formItems.find(
         (item) => item.prop === key
       );
 
@@ -302,6 +302,41 @@ const tableParams = ref({
 });
 //#endregion
 
+//#region 排序相关
+const sortStr = ref<{ sortName: string; sortType: string }[]>([]);
+// 处理排序事件
+function handleSortChange(column: any) {
+  // console.log("排序事件", column);
+  // 处理排序逻辑
+  if (column.column.sortable === "custom") {
+    // 自定义排序逻辑
+    // 这里可以根据 column.prop 来判断是哪个列在排序
+    // 并根据 column.order 来判断排序方向（ascending 或 descending）
+    // 最后更新表格数据即可
+    if (!column.order) {
+      sortStr.value = [];
+    }
+    if (column.order === "descending") {
+      sortStr.value = [
+        {
+          sortName: column.prop,
+          sortType: "desc",
+        },
+      ];
+    }
+    if (column.order === "ascending") {
+      sortStr.value = [
+        {
+          sortName: column.prop,
+          sortType: "asc",
+        },
+      ];
+    }
+    fetchDataTable();
+  }
+}
+//#endregion
+
 //#region 分页相关
 const defaultPaginationOptions = {
   pageSize: 10,
@@ -331,6 +366,7 @@ const fetchDataTable = async () => {
         pageNo: paginationParams.value.currentPage,
         pageSize: paginationParams.value.pageSize,
         searchStr: formatSearchParams(),
+        sortStr: JSON.stringify(sortStr.value),
       },
     });
     if (response.data.code === 200) {
@@ -451,7 +487,7 @@ const operationForm = ref<Record<string, string>>({});
 const initOperationForm = () => {
   if (isEmpty(props.operationFormConfig)) return;
   const operationFromTemp: Record<string, string> = {};
-  props.operationFormConfig.formItems.forEach((item) => {
+  props.operationFormConfig?.formItems.forEach((item) => {
     // 检查对象是否有当前属性
     if (!operationFromTemp.hasOwnProperty(item.prop)) {
       operationFromTemp[item.prop] = "";
@@ -466,7 +502,7 @@ initOperationForm();
 const operationFormRef = ref<FormInstance>();
 
 const filteredOperationFormItems = computed(() => {
-  return props.operationFormConfig.formItems.filter((item) => {
+  return props.operationFormConfig?.formItems.filter((item) => {
     return item.type !== "hidden";
   });
 });
@@ -503,7 +539,7 @@ onMounted(() => {
         <div>
           <el-form :model="searchForm" inline>
             <el-form-item
-              v-for="item in props.searchFormConfig.formItems"
+              v-for="item in props.searchFormConfig?.formItems"
               :key="item.prop"
               :prop="item.prop"
               :label="item.label"
@@ -580,6 +616,7 @@ onMounted(() => {
             style="width: 100%"
             v-bind="tableParams"
             v-loading="loading"
+            @sort-change="handleSortChange"
           >
             <el-table-column
               v-for="item in props.tableConfig.columns"
@@ -665,8 +702,8 @@ onMounted(() => {
       >
         <el-form
           :model="operationForm"
-          v-bind="props.operationFormConfig.form"
-          :rules="props.operationFormConfig.rules"
+          v-bind="props.operationFormConfig?.form"
+          :rules="props.operationFormConfig?.rules"
           ref="operationFormRef"
         >
           <el-form-item
