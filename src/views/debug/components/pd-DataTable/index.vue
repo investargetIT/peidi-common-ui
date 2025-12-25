@@ -1,38 +1,28 @@
 <script setup lang="ts">
 import { h, resolveComponent } from "vue";
+import Introduction from "../../../utils/introduction.vue";
+import introMarkdown from "./intro.md?raw";
+
 const TOKEN = "1930161144376926695";
 
 const SEARCH_FORM_CONFIG = {
   formItems: [
     {
-      prop: "title",
-      label: "Product Name",
+      prop: "id",
+      label: "ID",
       type: "text",
       config: {
-        searchType: "like",
-        placeholder: "Search Product Name",
+        searchType: "equals",
+        placeholder: "Search ID",
       },
     },
     {
-      prop: "channel",
-      label: "Platforms",
-      type: "select",
+      prop: "milvusId",
+      label: "Milvus ID",
+      type: "text",
       config: {
         searchType: "equals",
-        placeholder: "Select Platforms",
-        options: [
-          { label: "Amazon", value: "Amazon" },
-          { label: "Chewy", value: "Chewy" },
-        ],
-      },
-    },
-    {
-      prop: "date",
-      label: "Date",
-      type: "date",
-      config: {
-        searchType: "equals",
-        placeholder: "Select Date",
+        placeholder: "Search Milvus ID",
       },
     },
   ],
@@ -59,7 +49,7 @@ const OPERATION_FORM_CONFIG = {
       type: "text",
       config: {
         placeholder: "Enter Field",
-        expandAttribute: { type: "textarea" },
+        expandAttribute: { type: "textarea", rows: 10 },
       },
     },
     {
@@ -68,7 +58,7 @@ const OPERATION_FORM_CONFIG = {
       type: "text",
       config: {
         placeholder: "Enter SQL",
-        expandAttribute: { type: "textarea" },
+        expandAttribute: { type: "textarea", rows: 10 },
       },
     },
     {
@@ -93,17 +83,19 @@ const OPERATION_FORM_CONFIG = {
   },
 };
 const TABLE_CONFIG = {
-  title: "Product List",
+  title: "GBI表",
   columns: [
     {
-      prop: "title",
-      label: "Product Name",
-      minWidth: 200,
-      showOverflowTooltip: true,
+      prop: "id",
+      label: "ID",
+      minWidth: 100,
+      render: (scope: any) => {
+        return h("div", { style: { color: "red" } }, scope.row.id);
+      },
     },
     {
-      prop: "channel",
-      label: "Platforms",
+      prop: "milvusId",
+      label: "Milvus ID",
       minWidth: 100,
       render: (scope: any) => {
         const ElTag = resolveComponent("el-tag");
@@ -114,45 +106,27 @@ const TABLE_CONFIG = {
             effect: "plain",
             style: "color: #09090b",
           },
-          () => scope.row.channel
+          () => scope.row.milvusId
         );
       },
     },
     {
-      prop: "longAmount",
-      label: "Price Range",
-      minWidth: 150,
-      render: (scope: any) => {
-        return h(
-          "div",
-          { style: { color: "#71717a" } },
-          `$${scope.row.longAmount || 0} - ${scope.row.amount || 0}`
-        );
-      },
+      prop: "field",
+      label: "Field",
+      minWidth: 200,
+      showOverflowTooltip: true,
     },
     {
-      prop: "reviewCnt",
-      label: "Reviews",
-      minWidth: 100,
-      render: (scope: any) => {
-        return h("span", {}, Number(scope.row.reviewCnt || 0).toLocaleString());
-      },
-    },
-    {
-      prop: "reviewCnt",
-      label: "Est. Sales",
-      minWidth: 100,
-    },
-    {
-      prop: "star",
-      label: "Rating",
-      minWidth: 100,
+      prop: "searchSql",
+      label: "SQL",
+      minWidth: 200,
+      showOverflowTooltip: true,
     },
   ],
 };
 const REQUEST_CONFIG = {
   get: {
-    url: "https://api.peidigroup.cn/ai/intelligence/product/page",
+    url: "https://api.peidigroup.cn/ai/gbi/table/page",
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -161,11 +135,15 @@ const REQUEST_CONFIG = {
     timeout: 1000 * 10,
   },
   delete: {
-    url: "https://api.peidigroup.cn/ai/intelligence/product/delete",
+    url: "https://api.peidigroup.cn/ai/gbi/table/delete",
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: TOKEN,
+    },
+    data: {
+      id: "",
+      milvusId: "",
     },
     timeout: 1000 * 10,
   },
@@ -200,5 +178,7 @@ const REQUEST_CONFIG = {
       :tableConfig="TABLE_CONFIG"
       :requestConfig="REQUEST_CONFIG"
     ></pd-DataTable>
+    <el-divider />
+    <Introduction :markdownContent="introMarkdown" />
   </div>
 </template>

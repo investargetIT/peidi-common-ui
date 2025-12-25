@@ -55,11 +55,10 @@ const props = defineProps({
         };
       }[];
     },
-    required: true,
   },
   operationFormConfig: {
     type: Object as () => {
-      form: Object;
+      form?: Object;
       formItems: {
         prop: string;
         label: string;
@@ -73,9 +72,8 @@ const props = defineProps({
           expandAttribute?: Object;
         };
       }[];
-      rules: Object;
+      rules?: Object;
     },
-    required: true,
   },
   tableConfig: {
     type: Object as () => {
@@ -118,7 +116,7 @@ const props = defineProps({
         headers: Record<string, string>;
         params?: Record<string, any>;
         data?: Record<string, any>;
-        timeout: number;
+        timeout?: number;
       };
       delete?: {
         url: string;
@@ -126,7 +124,7 @@ const props = defineProps({
         headers: Record<string, string>;
         params?: Record<string, any>;
         data?: Record<string, any>;
-        timeout: number;
+        timeout?: number;
       };
       add?: {
         url: string;
@@ -134,7 +132,7 @@ const props = defineProps({
         headers: Record<string, string>;
         params?: Record<string, any>;
         data?: Record<string, any>;
-        timeout: number;
+        timeout?: number;
       };
       edit?: {
         url: string;
@@ -142,12 +140,43 @@ const props = defineProps({
         headers: Record<string, string>;
         params?: Record<string, any>;
         data?: Record<string, any>;
-        timeout: number;
+        timeout?: number;
       };
     },
     required: true,
   },
 });
+
+//#region 工具函数
+/**
+ * 将源对象的属性赋值给目标对象，如果目标对象没有该属性，则忽略
+ * @param source 源对象
+ * @param target 目标对象
+ * @returns 合并后的目标对象
+ */
+function assignSourceToTarget(
+  source: Record<string, any>,
+  target: Record<string, any>
+) {
+  const targetTemp = Object.assign({}, target);
+  Object.keys(source).forEach((key) => {
+    if (targetTemp.hasOwnProperty(key)) {
+      targetTemp[key] = source[key];
+    }
+  });
+  return targetTemp;
+}
+/**
+ * 判断是否为空，空代表null、undefined、{}
+ * @param data 要判断的数据
+ * @returns 是否为空
+ */
+function isEmpty(data: any) {
+  if (data === null || data === undefined) return true;
+  if (typeof data === "object") return Object.keys(data).length === 0;
+  return false;
+}
+//#endregion
 
 //#region 组件配置相关
 const componentConfigKey = (id: string) => `pd-DataTable-${id}`;
@@ -155,11 +184,15 @@ const componentConfigKey = (id: string) => `pd-DataTable-${id}`;
 
 //#region 操作事件相关 增、删、改、查
 const handleDeleteConfirm = (row: any) => {
-  ElMessageBox.confirm(`确认删除该条数据吗？【${row.id}】`, "删除确认", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
-  })
+  ElMessageBox.confirm(
+    t("dataTable.confirmDelete") + `【${row.id}】`,
+    t("dataTable.confirmDeleteTitle"),
+    {
+      confirmButtonText: t("dataTable.confirm"),
+      cancelButtonText: t("dataTable.cancel"),
+      type: "warning",
+    }
+  )
     .then(() => {
       fetchDeleteData(row);
     })
@@ -175,7 +208,7 @@ const handleEditClick = (row: any) => {
   operationVisible.value = true;
   operationType.value = "edit";
   // 遍历operationForm对象，把row的属性值赋值给operationForm.value里有的属性
-  operationForm.value = Object.assign({}, operationForm.value, row);
+  operationForm.value = assignSourceToTarget(row, operationForm.value);
   // console.log("编辑数据点击事件赋值", operationForm.value);
 };
 const handleOperationSubmit = async (formEl: FormInstance | undefined) => {
@@ -189,7 +222,7 @@ const handleOperationSubmit = async (formEl: FormInstance | undefined) => {
         fetchEditData(operationForm.value);
       }
     } else {
-      ElMessage.error("请填写完整信息");
+      ElMessage.error(t("dataTable.pleaseFillInCompleteInfo"));
     }
   });
 };
@@ -199,6 +232,7 @@ const handleOperationSubmit = async (formEl: FormInstance | undefined) => {
 const searchForm = ref<Record<string, string>>({});
 
 const initSearchForm = () => {
+  if (isEmpty(props.searchFormConfig)) return;
   const searchFromTemp: Record<string, string> = {};
   props.searchFormConfig.formItems.forEach((item) => {
     // 检查对象是否有当前属性
@@ -260,7 +294,7 @@ const defaultTableOptions = {
     color: "#0a0a0a",
   },
   size: "default",
-  emptyText: "暂无数据",
+  emptyText: t("dataTable.noData"),
 };
 const tableParams = ref({
   ...defaultTableOptions,
@@ -286,8 +320,10 @@ const paginationParams = ref({
 //#endregion
 
 //#region 请求相关
+const loading = ref(true);
 // 获取表格数据方法
 const fetchDataTable = async () => {
+  loading.value = true;
   try {
     const response = await axios({
       ...props.requestConfig.get,
@@ -314,32 +350,32 @@ const fetchDataTable = async () => {
       tableData.value = resData.data?.records || [];
     } else {
       // 错误处理
-      ElMessage.error(response.data.msg || "数据获取失败");
+      ElMessage.error(response.data.msg || t("dataTable.dataFetchFailed"));
     }
   } catch (error: any) {
     // 错误处理
-    ElMessage.error(error.message || "数据获取失败");
+    ElMessage.error(error.message || t("dataTable.dataFetchFailed"));
+  } finally {
+    loading.value = false;
   }
 };
 const fetchDeleteData = async (row: any) => {
   try {
     const response = await axios({
       ...props.requestConfig.delete,
-      data: {
-        id: row.id,
-      },
+      data: assignSourceToTarget(row, props.requestConfig.delete?.data || {}),
     });
     if (response.data.code === 200) {
       // 成功处理
-      ElMessage.success("删除成功");
+      ElMessage.success(t("dataTable.deleteSuccess"));
       fetchDataTable();
     } else {
       // 错误处理
-      ElMessage.error(response.data.msg || "删除失败");
+      ElMessage.error(response.data.msg || t("dataTable.deleteError"));
     }
   } catch (error: any) {
     // 错误处理
-    ElMessage.error(error.message || "删除失败");
+    ElMessage.error(error.message || t("dataTable.deleteError"));
   }
 };
 const fetchAddData = async (formData: any) => {
@@ -350,15 +386,16 @@ const fetchAddData = async (formData: any) => {
     });
     if (response.data.code === 200) {
       // 成功处理
-      ElMessage.success("新增成功");
+      ElMessage.success(t("dataTable.addSuccess"));
       fetchDataTable();
+      operationVisible.value = false;
     } else {
       // 错误处理
-      ElMessage.error(response.data.msg || "新增失败");
+      ElMessage.error(response.data.msg || t("dataTable.addError"));
     }
   } catch (error: any) {
     // 错误处理
-    ElMessage.error(error.message || "新增失败");
+    ElMessage.error(error.message || t("dataTable.addError"));
   }
 };
 const fetchEditData = async (formData: any) => {
@@ -369,15 +406,16 @@ const fetchEditData = async (formData: any) => {
     });
     if (response.data.code === 200) {
       // 成功处理
-      ElMessage.success("编辑成功");
+      ElMessage.success(t("dataTable.editSuccess"));
       fetchDataTable();
+      operationVisible.value = false;
     } else {
       // 错误处理
-      ElMessage.error(response.data.msg || "编辑失败");
+      ElMessage.error(response.data.msg || t("dataTable.editError"));
     }
   } catch (error: any) {
     // 错误处理
-    ElMessage.error(error.message || "编辑失败");
+    ElMessage.error(error.message || t("dataTable.editError"));
   }
 };
 watch(
@@ -404,11 +442,14 @@ watch(
 const operationVisible = ref(false);
 const operationType = ref<"add" | "edit">("add");
 const operationTitle = computed(() => {
-  return operationType.value === "add" ? "新增数据" : "编辑数据";
+  return operationType.value === "add"
+    ? t("dataTable.addData")
+    : t("dataTable.editData");
 });
 const operationForm = ref<Record<string, string>>({});
 
 const initOperationForm = () => {
+  if (isEmpty(props.operationFormConfig)) return;
   const operationFromTemp: Record<string, string> = {};
   props.operationFormConfig.formItems.forEach((item) => {
     // 检查对象是否有当前属性
@@ -456,6 +497,7 @@ onMounted(() => {
         style="height: 100%"
         shadow="never"
         class="pd-DataTable-search-card"
+        v-if="!isEmpty(props.searchFormConfig)"
       >
         <!-- 查询栏 -->
         <div>
@@ -496,8 +538,12 @@ onMounted(() => {
               />
             </el-form-item>
             <el-form-item>
-              <el-button @click="handleReset">重置</el-button>
-              <el-button type="primary" @click="fetchDataTable">查询</el-button>
+              <el-button @click="handleReset">{{
+                t("dataTable.reset")
+              }}</el-button>
+              <el-button type="primary" @click="fetchDataTable">{{
+                t("dataTable.query")
+              }}</el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -513,19 +559,28 @@ onMounted(() => {
         >
           <div>{{ props.tableConfig.title }}</div>
           <div>
-            <el-button type="primary" @click="handleAddClick"
-              ><iconify-icon
+            <el-button
+              type="primary"
+              @click="handleAddClick"
+              v-if="!isEmpty(props.operationFormConfig)"
+            >
+              <iconify-icon
                 icon="si:add-fill"
                 width="18"
                 height="18"
               ></iconify-icon
-              >新增</el-button
+              >{{ t("dataTable.add") }}</el-button
             >
           </div>
         </div>
         <!-- 表格 -->
         <div>
-          <el-table :data="tableData" style="width: 100%" v-bind="tableParams">
+          <el-table
+            :data="tableData"
+            style="width: 100%"
+            v-bind="tableParams"
+            v-loading="loading"
+          >
             <el-table-column
               v-for="item in props.tableConfig.columns"
               :key="item.prop"
@@ -554,6 +609,7 @@ onMounted(() => {
                   text
                   class="pd-DataTable-operation"
                   @click="handleEditClick(scope.row)"
+                  v-if="!isEmpty(props.operationFormConfig)"
                 >
                   <iconify-icon
                     icon="mingcute:edit-line"
@@ -566,6 +622,7 @@ onMounted(() => {
                   text
                   class="pd-DataTable-operation"
                   @click="handleDeleteConfirm(scope.row)"
+                  v-if="!isEmpty(props.requestConfig.delete)"
                 >
                   <iconify-icon
                     icon="lsicon:delete-outline"
@@ -600,7 +657,12 @@ onMounted(() => {
         </div>
       </el-card>
       <!-- 操作弹窗 -->
-      <el-dialog v-model="operationVisible" :title="operationTitle" width="500">
+      <el-dialog
+        v-model="operationVisible"
+        :title="operationTitle"
+        width="500"
+        v-if="!isEmpty(props.operationFormConfig)"
+      >
         <el-form
           :model="operationForm"
           v-bind="props.operationFormConfig.form"
@@ -617,7 +679,6 @@ onMounted(() => {
               v-if="item.type === 'text'"
               v-model="operationForm[item.prop]"
               :placeholder="item.config.placeholder"
-              style="width: 200px"
               clearable
               v-bind="item.config.expandAttribute"
             />
@@ -625,7 +686,6 @@ onMounted(() => {
               v-else-if="item.type === 'select'"
               v-model="operationForm[item.prop]"
               :placeholder="item.config.placeholder"
-              style="width: 200px"
               clearable
             >
               <el-option
@@ -639,7 +699,6 @@ onMounted(() => {
               v-else-if="item.type === 'date'"
               v-model="operationForm[item.prop]"
               :placeholder="item.config.placeholder"
-              style="width: 200px"
               clearable
             />
           </el-form-item>
@@ -650,7 +709,7 @@ onMounted(() => {
               type="primary"
               @click="handleOperationSubmit(operationFormRef)"
             >
-              确认
+              {{ t("dataTable.confirm") }}
             </el-button>
           </div>
         </template>
