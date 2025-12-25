@@ -257,7 +257,7 @@ const formatSearchParams = () => {
 
       const searchTypeTemp = searchFormConfigItem?.config?.searchType || "like";
 
-      const formartSearchValue = (value: string) => {
+      const formatSearchValue = (value: string) => {
         if (searchFormConfigItem?.type === "date") {
           value = dayjs(value).format("YYYY-MM-DD");
         }
@@ -270,7 +270,7 @@ const formatSearchParams = () => {
       searchStr.push({
         searchName: key,
         searchType: searchTypeTemp,
-        searchValue: formartSearchValue(searchForm.value[key]),
+        searchValue: formatSearchValue(searchForm.value[key]),
       });
     }
   });
@@ -373,6 +373,12 @@ const fetchDataTable = async () => {
     });
     if (response.data.code === 200) {
       const resData = response.data || {};
+
+      if (!resData.data) {
+        ElMessage.error(t("dataTable.dataFetchFailed"));
+        return;
+      }
+
       // 如果当前页大于总页数，重置为最后一页 排除总页数为0的情况
       if (
         resData.data?.current > resData.data?.pages &&
@@ -463,7 +469,7 @@ watch(
   ],
   ([newCurrentPage, newPageSize], [oldCurrentPage, oldPageSize]) => {
     if (newPageSize !== oldPageSize) {
-      updateLocalStorage("peidi-commom-ui-config", {
+      updateLocalStorage("peidi-common-ui-config", {
         [`${componentConfigKey(props.id)}-pageSize`]: newPageSize,
       });
     }
@@ -525,7 +531,7 @@ watch(
 onMounted(() => {
   // 初始化配置
   const componentConfig: any = getLocalStorage(
-    "peidi-commom-ui-config",
+    "peidi-common-ui-config",
     componentConfigKey(props.id)
   );
   if (componentConfig) {

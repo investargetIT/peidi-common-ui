@@ -1,9 +1,10 @@
 import { defineComponent as x, ref as c, watch as g, reactive as _, resolveComponent as m, createBlock as E, openBlock as U, unref as s, withCtx as d, createVNode as t, createElementVNode as k, createTextVNode as B, toDisplayString as N } from "vue";
-import { a4 as S, a3 as f } from "./index-C75vsX-L.js";
+import { a as S } from "./index-3k1IXN1T.js";
 import { useLocale as R } from "./pd-ui-package.js";
+import { a3 as w } from "./index-CAw0rXjE.js";
 const j = { class: "dialog-footer" }, z = {
   name: "pd-PwdChangeForm"
-}, O = /* @__PURE__ */ x({
+}, T = /* @__PURE__ */ x({
   ...z,
   props: {
     visible: {
@@ -74,16 +75,16 @@ const j = { class: "dialog-footer" }, z = {
                 newPassword: r.new
               }
             });
-            e.data.code === 200 ? (f.success(o("pwdChangeForm.pwdChangeSuccess")), i.value = !1) : f.error(
+            e.data.code === 200 ? (w.success(o("pwdChangeForm.pwdChangeSuccess")), i.value = !1) : w.error(
               e.data.msg || o("pwdChangeForm.pwdChangeError")
             );
           } catch (e) {
-            f.error(e.message || o("pwdChangeForm.pwdChangeError"));
+            w.error(e.message || o("pwdChangeForm.pwdChangeError"));
           }
       });
     };
     return (l, e) => {
-      const n = m("el-input"), w = m("el-form-item"), P = m("el-form"), y = m("el-button"), q = m("el-dialog");
+      const n = m("el-input"), f = m("el-form-item"), P = m("el-form"), y = m("el-button"), q = m("el-dialog");
       return U(), E(q, {
         modelValue: i.value,
         "onUpdate:modelValue": e[3] || (e[3] = (a) => i.value = a),
@@ -113,7 +114,7 @@ const j = { class: "dialog-footer" }, z = {
             "label-position": "left"
           }, {
             default: d(() => [
-              t(w, {
+              t(f, {
                 label: s(o)("pwdChangeForm.oldPwd"),
                 prop: "old"
               }, {
@@ -127,7 +128,7 @@ const j = { class: "dialog-footer" }, z = {
                 ]),
                 _: 1
               }, 8, ["label"]),
-              t(w, {
+              t(f, {
                 label: s(o)("pwdChangeForm.newPwd"),
                 prop: "new"
               }, {
@@ -141,7 +142,7 @@ const j = { class: "dialog-footer" }, z = {
                 ]),
                 _: 1
               }, 8, ["label"]),
-              t(w, {
+              t(f, {
                 label: s(o)("pwdChangeForm.confirmPwd"),
                 prop: "confirm"
               }, {
@@ -165,5 +166,5 @@ const j = { class: "dialog-footer" }, z = {
   }
 });
 export {
-  O as default
+  T as default
 };
