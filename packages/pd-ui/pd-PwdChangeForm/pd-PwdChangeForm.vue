@@ -9,6 +9,9 @@ import { ElMessage } from "element-plus";
 import { FormInstance } from "element-plus";
 import { reactive, ref, watch } from "vue";
 import axios from "axios";
+import { useLocale } from "../../hooks/useLocale";
+
+const { t } = useLocale();
 
 /**
  * 接收传过来的值
@@ -79,17 +82,33 @@ const form = reactive({
 
 const validateConfirmPassword = (rule: any, value: string, callback: any) => {
   if (value !== form.new) {
-    callback(new Error("两次输入密码不一致"));
+    callback(new Error(t("pwdChangeForm.confirmPwdError")));
   } else {
     callback();
   }
 };
 
 const rules = reactive({
-  old: [{ required: true, message: "请输入旧密码", trigger: "blur" }],
-  new: [{ required: true, message: "请输入新密码", trigger: "blur" }],
+  old: [
+    {
+      required: true,
+      message: t("pwdChangeForm.oldPwdPlaceholder"),
+      trigger: "blur",
+    },
+  ],
+  new: [
+    {
+      required: true,
+      message: t("pwdChangeForm.newPwdPlaceholder"),
+      trigger: "blur",
+    },
+  ],
   confirm: [
-    { required: true, message: "请确认新密码", trigger: "blur" },
+    {
+      required: true,
+      message: t("pwdChangeForm.confirmPwdPlaceholder"),
+      trigger: "blur",
+    },
     { required: true, validator: validateConfirmPassword, trigger: "blur" },
   ],
 });
@@ -112,15 +131,17 @@ const handleSubmit = async () => {
 
         if (response.data.code === 200) {
           // 成功处理
-          ElMessage.success("密码修改成功");
+          ElMessage.success(t("pwdChangeForm.pwdChangeSuccess"));
           dialogVisible.value = false;
         } else {
           // 错误处理
-          ElMessage.error(response.data.msg || "密码修改失败");
+          ElMessage.error(
+            response.data.msg || t("pwdChangeForm.pwdChangeError")
+          );
         }
       } catch (error: any) {
         // 错误处理
-        ElMessage.error(error.message || "密码修改失败");
+        ElMessage.error(error.message || t("pwdChangeForm.pwdChangeError"));
       }
     }
   });
@@ -128,27 +149,33 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <el-dialog v-model="dialogVisible" title="修改密码" width="500">
+  <el-dialog
+    v-model="dialogVisible"
+    :title="t('pwdChangeForm.title')"
+    width="500"
+  >
     <el-form
       :model="form"
       :rules="rules"
       ref="formRef"
-      :label-width="'100px'"
+      :label-width="t('global.locales') === 'zh-cn' ? '100px' : '150px'"
       :label-position="'left'"
     >
-      <el-form-item label="旧密码" prop="old">
+      <el-form-item :label="t('pwdChangeForm.oldPwd')" prop="old">
         <el-input v-model="form.old" type="password" show-password />
       </el-form-item>
-      <el-form-item label="新密码" prop="new">
+      <el-form-item :label="t('pwdChangeForm.newPwd')" prop="new">
         <el-input v-model="form.new" type="password" show-password />
       </el-form-item>
-      <el-form-item label="确认密码" prop="confirm">
+      <el-form-item :label="t('pwdChangeForm.confirmPwd')" prop="confirm">
         <el-input v-model="form.confirm" type="password" show-password />
       </el-form-item>
     </el-form>
     <template #footer>
       <div class="dialog-footer">
-        <el-button type="primary" @click="handleSubmit">确认</el-button>
+        <el-button type="primary" @click="handleSubmit">
+          {{ t("pwdChangeForm.submit") }}
+        </el-button>
       </div>
     </template>
   </el-dialog>
