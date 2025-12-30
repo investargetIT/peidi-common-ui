@@ -7,6 +7,15 @@ export interface ColumnConfig {
   label: string;
   width?: number;
   format?: (value: any) => string;
+  // 新增超链接配置
+  hyperlink?: {
+    // 超链接地址，可以是字符串或函数
+    url: string | ((value: any, row: any) => string);
+    // 显示文本，可以是字符串或函数，默认为单元格值
+    text?: string | ((value: any, row: any) => string);
+    // 超链接提示文本
+    tooltip?: string;
+  };
 }
 
 /**
@@ -86,8 +95,26 @@ export const exportToExcel = async (
       },
     };
 
+    const hyperlinkStyle = {
+      ...dataStyle,
+      font: {
+        ...dataStyle.font,
+        color: { argb: "FF0000FF" }, // 蓝色
+        underline: true,
+      },
+    };
+
     const alternateRowStyle = {
       ...dataStyle,
+      fill: {
+        type: "pattern" as const,
+        pattern: "solid" as const,
+        fgColor: { argb: "FFF5F5F5" }, // 浅灰色
+      },
+    };
+
+    const alternateHyperlinkStyle = {
+      ...hyperlinkStyle,
       fill: {
         type: "pattern" as const,
         pattern: "solid" as const,
@@ -116,10 +143,41 @@ export const exportToExcel = async (
         })
       );
 
-      // 交替行颜色
+      // 设置单元格样式和超链接
       dataRow.eachCell((cell, colNumber) => {
-        cell.style = rowIndex % 2 === 0 ? dataStyle : alternateRowStyle;
+        const colIndex = colNumber - 1;
+        const column = columns[colIndex];
+        const value = row[column.prop];
+        
+        // 检查是否需要设置超链接
+        if (column.hyperlink) {
+          const url = typeof column.hyperlink.url === 'function' 
+            ? column.hyperlink.url(value, row) 
+            : column.hyperlink.url;
+          
+          const displayText = column.hyperlink.text 
+            ? (typeof column.hyperlink.text === 'function' 
+                ? column.hyperlink.text(value, row) 
+                : column.hyperlink.text)
+            : (column.format ? column.format(value) : value);
+          
+          const tooltip = column.hyperlink.tooltip;
+          
+          // 设置超链接
+          cell.value = {
+            text: displayText,
+            hyperlink: url,
+            tooltip: tooltip
+          };
+          
+          // 设置超链接样式
+          cell.style = rowIndex % 2 === 0 ? hyperlinkStyle : alternateHyperlinkStyle;
+        } else {
+          // 普通单元格样式
+          cell.style = rowIndex % 2 === 0 ? dataStyle : alternateRowStyle;
+        }
       });
+      
       dataRow.height = 22;
     });
 
