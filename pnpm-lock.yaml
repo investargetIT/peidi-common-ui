@@ -17,6 +17,12 @@ importers:
       dayjs:
         specifier: ^1.11.19
         version: 1.11.19
+      echarts:
+        specifier: ^6.0.0
+        version: 6.0.0
+      echarts-wordcloud:
+        specifier: ^2.1.0
+        version: 2.1.0(echarts@6.0.0)
       element-plus:
         specifier: ^2.11.8
         version: 2.11.8(vue@3.5.24(typescript@5.9.3))
@@ -736,6 +742,14 @@ packages:
   duplexer2@0.1.4:
     resolution: {integrity: sha512-asLFVfWWtJ90ZyOUHMqk7/S2w2guQKxUI2itj3d92ADHhxUSbCMGi1f1cBcJ7xM1To+pE/Khbwo1yuNbMEPKeA==}
 
+  echarts-wordcloud@2.1.0:
+    resolution: {integrity: sha512-Kt1JmbcROgb+3IMI48KZECK2AP5lG6bSsOEs+AsuwaWJxQom31RTNd6NFYI01E/YaI1PFZeueaupjlmzSQasjQ==}
+    peerDependencies:
+      echarts: ^5.0.1
+
+  echarts@6.0.0:
+    resolution: {integrity: sha512-Tte/grDQRiETQP4xz3iZWSvoHrkCQtwqd6hs+mifXcjrCuo2iKWbajFObuLJVBlDIJlOzgQPd1hsaKt/3+OMkQ==}
+
   element-plus@2.11.8:
     resolution: {integrity: sha512-2wzSj2uubFU1f0t/gHkkE1d09mUgV18fSZX5excw3Ar6hyWcxph4E57U8dgYLDt7HwkKYv1BiqPyBdy0WqWlOA==}
     peerDependencies:
@@ -1141,6 +1155,9 @@ packages:
   traverse@0.3.9:
     resolution: {integrity: sha512-iawgk0hLP3SxGKDfnDJf8wTz4p2qImnyihM5Hh/sGvQ3K37dPi/w8sRhdNIxYA1TwFwc5mDhIJq+O0RsvXBKdQ==}
 
+  tslib@2.3.0:
+    resolution: {integrity: sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==}
+
   typescript@5.9.3:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
     engines: {node: '>=14.17'}
@@ -1245,6 +1262,9 @@ packages:
   zip-stream@4.1.1:
     resolution: {integrity: sha512-9qv4rlDiopXg4E69k+vMHjNN63YFMe9sZMrdlvKnCjlCRWeCBswPPMPUfx+ipsAWq1LXHe70RcbaHdJJpS6hyQ==}
     engines: {node: '>= 10'}
+
+  zrender@6.0.0:
+    resolution: {integrity: sha512-41dFXEEXuJpNecuUQq6JlbybmnHaqqpGlbH1yxnA5V9MMP4SbohSVZsJIwz+zdjQXSSlR1Vc34EgH1zxyTDvhg==}
 
 snapshots:
 
@@ -1830,6 +1850,15 @@ snapshots:
     dependencies:
       readable-stream: 2.3.8
 
+  echarts-wordcloud@2.1.0(echarts@6.0.0):
+    dependencies:
+      echarts: 6.0.0
+
+  echarts@6.0.0:
+    dependencies:
+      tslib: 2.3.0
+      zrender: 6.0.0
+
   element-plus@2.11.8(vue@3.5.24(typescript@5.9.3)):
     dependencies:
       '@ctrl/tinycolor': 3.6.1
@@ -2275,6 +2304,8 @@ snapshots:
 
   traverse@0.3.9: {}
 
+  tslib@2.3.0: {}
+
   typescript@5.9.3: {}
 
   uc.micro@2.1.0: {}
@@ -2349,3 +2380,7 @@ snapshots:
       archiver-utils: 3.0.4
       compress-commons: 4.1.2
       readable-stream: 3.6.2
+
+  zrender@6.0.0:
+    dependencies:
+      tslib: 2.3.0

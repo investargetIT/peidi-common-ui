@@ -4,9 +4,11 @@
 只记录可使用的版本号
 ```
 
-## v1.2.0
+## v1.3.6
 
 - 新增 DataTable 组件
+- 新增 ExcelExport 组件
+- 新增 EchartsContainer 组件
 
 ## v1.1.1
 

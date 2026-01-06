@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { getCurrentInstance, markRaw, onMounted, ref, watch } from "vue";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import { Icon as IconifyIcon } from "@iconify/vue";
 
 import HowToUse from "./components/pd-HowToUse/index.vue";
@@ -9,6 +9,7 @@ import VersionIntro from "./components/pd-VersionIntro/index.vue";
 import PwdChangeForm from "./components/pd-PwdChangeForm/index.vue";
 import DataTable from "./components/pd-DataTable/index.vue";
 import ExcelExport from "./components/pd-ExcelExport/index.vue";
+import EchartsContainer from "./components/pd-EchartsContainer/index.vue";
 
 const { globalProperties } = getCurrentInstance()!.appContext.config;
 
@@ -55,6 +56,7 @@ onMounted(() => {
     { name: "PwdChangeForm", component: markRaw(PwdChangeForm) },
     { name: "DataTable", component: markRaw(DataTable) },
     { name: "ExcelExport", component: markRaw(ExcelExport) },
+    { name: "EchartsContainer", component: markRaw(EchartsContainer) },
   ];
 
   components.value = componentList.map((item) => {
@@ -130,6 +132,22 @@ const showCode = ref(true);
 watch(showCode, (newValue) => {
   localStorage.setItem("showCode", newValue.toString());
 });
+
+// 修改TOKEN
+const changeToken = () => {
+  ElMessageBox.prompt("输入TOKEN", "TOKEN", {
+    confirmButtonText: "保存",
+    cancelButtonText: "取消",
+  })
+    .then(({ value }) => {
+      localStorage.setItem("peidi-common-ui-token", value);
+      ElMessage({
+        type: "success",
+        message: `TOKEN已更新`,
+      });
+    })
+    .catch(() => {});
+};
 </script>
 
 <template>
@@ -153,6 +171,13 @@ watch(showCode, (newValue) => {
           height="24"
           style="color: #409eff; cursor: pointer"
           @click="showCode = true"
+        ></iconify-icon>
+        <iconify-icon
+          icon="arcticons:bbl-token"
+          width="48"
+          height="48"
+          style="color: #2563eb; cursor: pointer"
+          @click="changeToken"
         ></iconify-icon>
         <el-dropdown @command="handleCommand">
           <span class="el-dropdown-link">

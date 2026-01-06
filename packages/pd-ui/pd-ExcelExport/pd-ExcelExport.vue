@@ -34,19 +34,48 @@ const props = defineProps({
 });
 
 const loading = ref(false);
-const handleExport = () => {
+
+// 定义回调函数类型
+interface ExportCallbacks {
+  onBeforeExport?: () => void;
+  onSuccess?: () => void;
+  onError?: (error?: any) => void;
+  onFinally?: () => void;
+}
+
+const handleExport = (callbacks?: ExportCallbacks) => {
   loading.value = true;
+
+  // 导出前回调
+  callbacks?.onBeforeExport?.();
+
   exportToExcel(props.data, props.columnsConfig, props.fileName)
     .then(() => {
       ElMessage.success(t("excelExport.exportSuccess"));
+      // 导出成功回调
+      callbacks?.onSuccess?.();
     })
-    .catch(() => {
+    .catch((error) => {
       ElMessage.error(t("excelExport.exportError"));
+      // 导出失败回调
+      callbacks?.onError?.(error);
     })
     .finally(() => {
       loading.value = false;
+      // 导出完成回调
+      callbacks?.onFinally?.();
     });
 };
+
+// 暴露点击按钮的方法，支持传入回调函数
+const triggerButtonClick = (callbacks?: ExportCallbacks) => {
+  handleExport(callbacks);
+};
+
+// 暴露方法给父组件
+defineExpose({
+  triggerButtonClick,
+});
 </script>
 
 <template>

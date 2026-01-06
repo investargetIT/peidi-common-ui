@@ -24,6 +24,10 @@ import dayjs from "dayjs";
 const { t } = useLocale();
 
 const { elementLocale } = useElementPlusI18n();
+
+// 插槽也写在这
+// @slot operationBar 操作栏插槽
+
 /**
  * 接收传过来的值
  *
@@ -257,7 +261,7 @@ const formatSearchParams = () => {
 
       const searchTypeTemp = searchFormConfigItem?.config?.searchType || "like";
 
-      const formartSearchValue = (value: string) => {
+      const formatSearchValue = (value: string) => {
         if (searchFormConfigItem?.type === "date") {
           value = dayjs(value).format("YYYY-MM-DD");
         }
@@ -270,7 +274,7 @@ const formatSearchParams = () => {
       searchStr.push({
         searchName: key,
         searchType: searchTypeTemp,
-        searchValue: formartSearchValue(searchForm.value[key]),
+        searchValue: formatSearchValue(searchForm.value[key]),
       });
     }
   });
@@ -373,6 +377,12 @@ const fetchDataTable = async () => {
     });
     if (response.data.code === 200) {
       const resData = response.data || {};
+
+      if (!resData.data) {
+        ElMessage.error(t("dataTable.dataFetchFailed"));
+        return;
+      }
+
       // 如果当前页大于总页数，重置为最后一页 排除总页数为0的情况
       if (
         resData.data?.current > resData.data?.pages &&
@@ -463,7 +473,7 @@ watch(
   ],
   ([newCurrentPage, newPageSize], [oldCurrentPage, oldPageSize]) => {
     if (newPageSize !== oldPageSize) {
-      updateLocalStorage("peidi-commom-ui-config", {
+      updateLocalStorage("peidi-common-ui-config", {
         [`${componentConfigKey(props.id)}-pageSize`]: newPageSize,
       });
     }
@@ -525,7 +535,7 @@ watch(
 onMounted(() => {
   // 初始化配置
   const componentConfig: any = getLocalStorage(
-    "peidi-commom-ui-config",
+    "peidi-common-ui-config",
     componentConfigKey(props.id)
   );
   if (componentConfig) {
@@ -609,6 +619,8 @@ onMounted(() => {
         >
           <div>{{ props.tableConfig.title }}</div>
           <div>
+            <slot name="operationBar" :searchForm="searchForm"></slot>
+
             <el-button
               type="primary"
               @click="handleAddClick"
@@ -619,8 +631,8 @@ onMounted(() => {
                 width="18"
                 height="18"
               ></iconify-icon
-              >{{ t("dataTable.add") }}</el-button
-            >
+              >{{ t("dataTable.add") }}
+            </el-button>
           </div>
         </div>
         <!-- 表格 -->
@@ -650,10 +662,15 @@ onMounted(() => {
                 {{ scope.row[item.prop] }}
               </template>
             </el-table-column>
+            <!-- 如果没有编辑和删除操作，不显示操作栏 -->
             <el-table-column
               prop="Operation"
               :label="t('dataTable.operation')"
               min-width="150"
+              v-if="
+                !isEmpty(props.requestConfig.edit) ||
+                !isEmpty(props.requestConfig.delete)
+              "
             >
               <template #default="scope">
                 <el-button
