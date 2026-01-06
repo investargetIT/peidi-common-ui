@@ -60,22 +60,20 @@ const excelExportRef = ref();
 
 const triggerButtonClick = () => {
   if (excelExportRef.value) {
-    if (excelExportRef.value) {
-      excelExportRef.value.triggerButtonClick({
-        onBeforeExport: () => {
-          console.log("导出开始前执行");
-        },
-        onSuccess: () => {
-          console.log("导出成功时执行");
-        },
-        onError: (error: any) => {
-          console.log("导出失败时执行，错误信息:", error);
-        },
-        onFinally: () => {
-          console.log("导出完成后执行");
-        },
-      });
-    }
+    excelExportRef.value.triggerButtonClick({
+      onBeforeExport: () => {
+        console.log("导出开始前执行");
+      },
+      onSuccess: () => {
+        console.log("导出成功时执行");
+      },
+      onError: (error: any) => {
+        console.log("导出失败时执行，错误信息:", error);
+      },
+      onFinally: () => {
+        console.log("导出完成后执行");
+      },
+    });
   }
 };
 </script>
