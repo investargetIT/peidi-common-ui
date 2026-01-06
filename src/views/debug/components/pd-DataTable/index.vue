@@ -2,6 +2,7 @@
 import { h, resolveComponent } from "vue";
 import Introduction from "../../../utils/introduction.vue";
 import introMarkdown from "./intro.md?raw";
+import { ElMessage } from "element-plus";
 
 const TOKEN = localStorage.getItem("peidi-common-ui-token") || "";
 
@@ -167,6 +168,13 @@ const REQUEST_CONFIG = {
     timeout: 1000 * 10,
   },
 };
+
+const handleExport = (searchForm: any) => {
+  console.log("点击导出", searchForm);
+  ElMessage({
+    message: "点击了导出按钮: " + JSON.stringify(searchForm),
+  });
+};
 </script>
 
 <template>
@@ -178,7 +186,11 @@ const REQUEST_CONFIG = {
       :operationFormConfig="OPERATION_FORM_CONFIG"
       :tableConfig="TABLE_CONFIG"
       :requestConfig="REQUEST_CONFIG"
-    ></pd-DataTable>
+    >
+      <template #operationBar="{ searchForm }">
+        <el-button @click="handleExport(searchForm)"> 导出 </el-button>
+      </template>
+    </pd-DataTable>
     <el-divider />
     <Introduction :markdownContent="introMarkdown" />
   </div>

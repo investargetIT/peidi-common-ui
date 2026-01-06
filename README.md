@@ -41,7 +41,7 @@ pnpm build
 npm run build
 ```
 
-构建成功后，dist 目录下会出现打包文件。
+构建成功后，pd-ui-package 目录下会出现打包文件。
 
 ### 2. 初始化 package.json
 

@@ -24,6 +24,10 @@ import dayjs from "dayjs";
 const { t } = useLocale();
 
 const { elementLocale } = useElementPlusI18n();
+
+// 插槽也写在这
+// @slot operationBar 操作栏插槽
+
 /**
  * 接收传过来的值
  *
@@ -615,6 +619,8 @@ onMounted(() => {
         >
           <div>{{ props.tableConfig.title }}</div>
           <div>
+            <slot name="operationBar" :searchForm="searchForm"></slot>
+
             <el-button
               type="primary"
               @click="handleAddClick"
@@ -625,8 +631,8 @@ onMounted(() => {
                 width="18"
                 height="18"
               ></iconify-icon
-              >{{ t("dataTable.add") }}</el-button
-            >
+              >{{ t("dataTable.add") }}
+            </el-button>
           </div>
         </div>
         <!-- 表格 -->
@@ -656,10 +662,15 @@ onMounted(() => {
                 {{ scope.row[item.prop] }}
               </template>
             </el-table-column>
+            <!-- 如果没有编辑和删除操作，不显示操作栏 -->
             <el-table-column
               prop="Operation"
               :label="t('dataTable.operation')"
               min-width="150"
+              v-if="
+                !isEmpty(props.requestConfig.edit) ||
+                !isEmpty(props.requestConfig.delete)
+              "
             >
               <template #default="scope">
                 <el-button
