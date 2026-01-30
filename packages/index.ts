@@ -12,7 +12,7 @@ import { createPdI18n, setGlobalI18n, type LocaleMessages } from "./locales";
 type GlobModules = Record<string, () => Promise<any>>;
 
 const components = (import.meta as any).glob(
-  "./pd-ui/**/pd-*.vue"
+  "./pd-ui/**/pd-*.vue",
 ) as GlobModules;
 
 // 组件库插件选项类型
@@ -80,3 +80,4 @@ export default pdGlobalComponent;
 // 导出所有组件和工具
 export * from "./locales";
 export * from "./hooks/useLocale";
+export * from "./pd-ui/pd-FetchAllTable/hooks/useFetchAllTable";

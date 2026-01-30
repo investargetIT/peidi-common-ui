@@ -10,6 +10,7 @@ import PwdChangeForm from "./components/pd-PwdChangeForm/index.vue";
 import DataTable from "./components/pd-DataTable/index.vue";
 import ExcelExport from "./components/pd-ExcelExport/index.vue";
 import EchartsContainer from "./components/pd-EchartsContainer/index.vue";
+import FetchAllTable from "./components/pd-FetchAllTable/index.vue";
 
 const { globalProperties } = getCurrentInstance()!.appContext.config;
 
@@ -57,6 +58,7 @@ onMounted(() => {
     { name: "DataTable", component: markRaw(DataTable) },
     { name: "ExcelExport", component: markRaw(ExcelExport) },
     { name: "EchartsContainer", component: markRaw(EchartsContainer) },
+    { name: "FetchAllTable", component: markRaw(FetchAllTable) },
   ];
 
   components.value = componentList.map((item) => {

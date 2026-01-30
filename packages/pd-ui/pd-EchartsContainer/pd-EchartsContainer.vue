@@ -6,7 +6,7 @@ export default {
 <script setup lang="ts">
 import * as echarts from "echarts";
 import "echarts-wordcloud";
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, PropType, ref, watch } from "vue";
 
 // props
 const props = defineProps({
@@ -30,6 +30,11 @@ const props = defineProps({
   style: {
     type: Object,
     default: () => ({ width: "700px" }),
+  },
+  shadow: {
+    // 枚举类型
+    type: String as PropType<"always" | "never" | "hover">,
+    default: "never",
   },
 });
 
@@ -75,7 +80,7 @@ watch(
       myChart.setOption(newOption);
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 // 组件销毁时清理图表实例
@@ -101,7 +106,7 @@ const chartMinHeight = computed(() => {
 </script>
 
 <template>
-  <el-card shadow="never" :style="style">
+  <el-card :shadow="shadow" :style="style">
     <div class="text-[16px] font-bold text-[#09090B]">{{ title }}</div>
     <div class="text-[14px] text-[#71717a]">{{ text }}</div>
     <!-- 自定义内容插槽 -->
